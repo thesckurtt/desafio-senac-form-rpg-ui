@@ -23,6 +23,9 @@ body{
 .p-relative { 
     position: relative !important;
 }
+.text-yellow{
+    color: yellow !important;
+}
 
 /* Color Theme Swatches in Hex */
 .Game-Logo-Collection-1-hex { color: #0D090C; }
