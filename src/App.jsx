@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components';
 import { useForm } from "react-hook-form";
 
@@ -14,6 +14,7 @@ z-index: 2;
 
 const RPGForm = styled.form`
 display: grid;
+position: relative;
 grid-template-columns: 1fr 1fr;
 grid-template-rows: repeat(auto);
 grid-gap: 25px;
@@ -43,9 +44,11 @@ min-height: 40px !important;
 `
 
 const LabelTitleForm = styled.h2`
-margin-top: -35px !important;
-margin-left: -130px !important;
+${'' /* margin-top: -35px !important; */}
+width: 100% !important;
+${'' /* margin-left: -130px !important; */}
 position: relative;
+text-align: center;
 `
 
 const Morcego = styled.div`
@@ -65,6 +68,9 @@ const Habilidades = styled.div`
 display: flex;
 justify-content: center;
 gap: 20px;
+position: relative;
+top: -20px;
+
 `
 const ErrorModalBg = styled.div`
 position: fixed;
@@ -98,11 +104,11 @@ align-items: center; */}
 z-index: 9999;
 `
 
-const backgrounds = [
-  'Blacksmith',
-  'Merchant',
-  'City Guard',
-  'Alchemist',
+const goals = [
+  'Dominar o mundo',
+  'Passar na matéria da Aline',
+  'Ser especialista em miojo',
+  'Explodir a Terra (por acidente, claro)',
   'Explorer',
   'Thug',
   'Mercenary',
@@ -111,7 +117,16 @@ const backgrounds = [
 ];
 export const App = () => {
   const [errorModal, setErrorModal] = useState(false);
-  const { register, handleSubmit, formState: { errors } } = useForm();
+  const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm();
+  const [worldType, setWorldType] = useState("");
+  const [selectedGoal, setSelectedGoal] = useState('Dominar o mundo');
+  const [handleWorldDropdown, setHandleWorldDropdown] = useState(false);
+  // useEffect(() => {
+  //   // Inicializa checkboxes e demais controles do RPGUI
+  //   if (window.RPGUI) {
+  //     window.RPGUI.initAll();
+  //   }
+  // }, []);
   const onSubmit = (data) => {
     console.log("Dados enviados:", data);
   };
@@ -119,16 +134,34 @@ export const App = () => {
     setErrorModal(true);
     console.log("Erros:", errors);
   };
-  const [selectedBackground, setSelectedBackground] = useState('Blacksmith');
 
-  const handleSelect = (background) => {
-    setSelectedBackground(background);
+  const handleSelectGoal = (goal) => {
+    setSelectedGoal(goal);
+    setValue("goal", goal); // registra no RHF
   };
 
   const closeModal = () => {
     setErrorModal(false);
   }
 
+  // const [skills, setSkills] = useState({
+  //   skill1: false,
+  //   skill2: false,
+  //   skill3: false,
+  // });
+
+  // const handleCheckboxChange = ({ name }) => {
+  //   setSkills(prev => {
+  //     const updated = { ...prev, [name]: !prev[name] };
+  //     console.log(updated); // Aqui você vê o valor atualizado
+  //     return updated;
+  //   });
+  // };
+
+  const handleWorldClick = (value) => {
+    setWorldType(value);
+    setValue("worldType", value); // registra no RHF
+  };
 
   return (
     <MainContainer className="rpgui-content rpgui-container framed">
@@ -136,7 +169,10 @@ export const App = () => {
         <ErrorModalContent className='rpgui-container framed-golden-2'>
           <h1 style={{ fontSize: '20px' }}>Erro</h1>
           <hr />
-          <p>{errors.name && errors.name.message}</p>
+          <p>
+            {errors.name && errors.name.message}
+            {errors.description && errors.description.message}
+          </p>
         </ErrorModalContent>
       </ErrorModalBg>}
       <h1 className='my-4' style={{ fontSize: '30px' }}>CRIE SEU PERSONAGEM LENDÁRIO</h1>
@@ -154,64 +190,90 @@ export const App = () => {
           </div>
           <div className='mt-4'>
             <label>Descrição</label>
-            <RPGTextArea {...register("description", { required: "a descrição é obrigatória" })}>
+            <RPGTextArea placeholder="Digite a descrição do seu personagem" {...register("description", { required: "a descrição é obrigatória" })}>
 
             </RPGTextArea>
           </div>
         </div>
+        {/* TODO: Implementar upload de foto */}
         <UploadProfilePicture className='rpgui-container framed p-relative'>
           {/* <label>teste</label>
           <input type="text" /> */}
         </UploadProfilePicture>
         <hr style={{ gridColumn: 'span 2' }} />
-        <LabelTitleForm >Habilidades</LabelTitleForm>
-        <div></div>
+        <LabelTitleForm style={{ gridColumn: 'span 2' }}>Habilidades</LabelTitleForm>
         <Habilidades className='mt-2' style={{ gridColumn: 'span 2' }}>
-          <input className="rpgui-checkbox golden" type="checkbox" data-rpguitype="checkbox" />
-          <label>Lorem 1</label>
-          <input className="rpgui-checkbox golden" type="checkbox" data-rpguitype="checkbox" />
-          <label>Lorem 2</label>
-          <input className="rpgui-checkbox golden" type="checkbox" data-rpguitype="checkbox" />
-          <label>Lorem 3</label>
+          <div>
+
+            <input
+              id="skill1"
+              className="rpgui-checkbox golden"
+              type="checkbox"
+              // checked={skills.skill1}
+              data-rpguitype="checkbox"
+              // onChange={(e) => {
+              //   setSkills(prev => ({ ...prev, skill1: e.target.checked }));
+              //   setValue("skill1", e.target.checked); // setValue do RHF
+              // }}
+              {...register("skill1")}
+            />
+            <label htmlFor="skill1">Soco do Desentupidor</label>
+          </div>
+          <div>
+
+            <input id="skill2" className="rpgui-checkbox golden" type="checkbox" data-rpguitype="checkbox" {...register("skill2")} />
+            <label htmlFor='skill2'>Abraço Fatal</label>
+          </div>
+          <div>
+
+            <input id="skill3" className="rpgui-checkbox golden" type="checkbox" data-rpguitype="checkbox" {...register("skill3")} />
+            <label htmlFor='skill3'>Rugido do Gato</label>
+          </div>
         </Habilidades>
         <hr style={{ gridColumn: 'span 2' }} />
         <div className=''>
           <div className='mt-3'>
             <label>Origem</label>
-            <input type="text" />
+            <input type="text" placeholder='Digite a origem' {...register("origin", { required: "A origem é obrigatório", minLength: 3, maxLength: 50 })} />
           </div>
           <div className='mt-3'>
             <label>Universo</label>
-            <input type="text" />
+            <input type="text" placeholder='Digite o universo' {...register("universe", { required: "O universo é obrigatório", minLength: 3, maxLength: 50 })} />
           </div>
-          <div className='mt-3'>
-
-            <select className="rpgui-dropdown">
-              <option value="option1">option1</option>
-              <option value="option2">option2</option>
-              <option value="option2">option2</option>
-              <option value="option2">option2</option>
-            </select>
+          <div className='mt-3' style={{ position: 'relative' }}>
+            <label htmlFor="">Tipo de mundo</label>
+            <p className="rpgui-dropdown-imp rpgui-dropdown-imp-header" onClick={() => setHandleWorldDropdown(!handleWorldDropdown)}>
+              <label>▼</label> {worldType || "Selecione"}
+            </p>
+            {handleWorldDropdown &&
+              <ul className="rpgui-dropdown-imp" style={{ position: 'absolute', top: '60px', left: '0', height: 'fit-content', width: '100%' }} onMouseLeave={() => setHandleWorldDropdown(false)}>
+                <li onClick={() => handleWorldClick("fantasy")} style={{ height: 'fit-content', marginBottom: '5px', borderBottom: '1px solid #281e0663', paddingBottom: '6px', paddingTop: '6px' }}>Fantasia</li>
+                <li onClick={() => handleWorldClick("sci-fi")} style={{ height: 'fit-content', marginBottom: '5px', borderBottom: '1px solid #281e0663', paddingBottom: '6px', paddingTop: '6px' }}>Ficção científica</li>
+                <li onClick={() => handleWorldClick("modern")} style={{ height: 'fit-content', marginBottom: '5px', borderBottom: '1px solid #281e0663', paddingBottom: '6px', paddingTop: '6px' }}>Moderno</li>
+                <li onClick={() => handleWorldClick("historical")} style={{ height: 'fit-content', marginBottom: '5px', borderBottom: '1px solid #281e0663', paddingBottom: '6px', paddingTop: '6px' }}>Histórico</li>
+                <li onClick={() => handleWorldClick("steampunk")} style={{ height: 'fit-content', marginBottom: '5px', borderBottom: '1px solid #281e0663', paddingBottom: '6px', paddingTop: '6px' }}>Steampunk</li>
+              </ul>
+            }
           </div>
         </div>
         <div>
           <h1>Objetivo</h1>
           <ul id="background-select-rpgui-list" className="rpgui-list-imp" style={{ height: '150px' }}>
-            {backgrounds.map((background) => (
+            {goals.map((goal) => (
               <li
-                style={{ padding: "23px !important" }}
-                key={background}
-                data-rpguivalue={background}
-                className={selectedBackground === background ? 'rpgui-selected' : ''}
-                onClick={() => handleSelect(background)}
+                style={{ height: 'fit-content', marginBottom: '5px', borderBottom: '1px solid #281e0663', paddingBottom: '15px', paddingTop: '15px' }}
+                key={goal}
+                data-rpguivalue={goal}
+                className={selectedGoal === goal ? 'text-yellow' : '' + `active`}
+                onClick={() => handleSelectGoal(goal)}
               >
-                {background}
+                {goal}
               </li>
             ))}
           </ul>
         </div>
         <hr className='golden' style={{ gridColumn: 'span 2' }} />
-        <div>
+        {/* <div>
           <div>
             <h1>Força</h1>
             <div>
@@ -230,7 +292,7 @@ export const App = () => {
               <input className="rpgui-slider golden" type="range" min="0" max="10" value="5"></input>
             </div>
           </div>
-        </div>
+        </div> */}
         <div>
           <div>
             <h1>Força</h1>
