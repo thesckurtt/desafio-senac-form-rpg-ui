@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import styled from 'styled-components';
-
+import { useForm } from "react-hook-form";
 
 const MainContainer = styled.div`
 max-width: 960px;
@@ -66,6 +66,38 @@ display: flex;
 justify-content: center;
 gap: 20px;
 `
+const ErrorModalBg = styled.div`
+position: fixed;
+${'' /* top: calc(50% - 200px);
+left: calc(50% - 200px); */}
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background-color: rgba(14, 14, 14, 0.62);
+display: flex;
+justify-content: center;
+align-items: center;
+z-index: 9999;
+`
+
+const ErrorModalContent = styled.div`
+position: relative;
+top: calc(50% - 200px);
+left: calc(50% - 200px);
+top: 0;
+left: 0;
+max-width: 400px;
+max-height: 400px;
+width: 100%;
+height: 100%;
+background-color: rgba(14, 14, 14, 0.62);
+${'' /* display: flex;
+justify-content: center;
+align-items: center; */}
+z-index: 9999;
+`
+
 const backgrounds = [
   'Blacksmith',
   'Merchant',
@@ -78,31 +110,51 @@ const backgrounds = [
   'Gladiator'
 ];
 export const App = () => {
+  const [errorModal, setErrorModal] = useState(false);
+  const { register, handleSubmit, formState: { errors } } = useForm();
+  const onSubmit = (data) => {
+    console.log("Dados enviados:", data);
+  };
+  const onError = (errors) => {
+    setErrorModal(true);
+    console.log("Erros:", errors);
+  };
   const [selectedBackground, setSelectedBackground] = useState('Blacksmith');
 
   const handleSelect = (background) => {
     setSelectedBackground(background);
   };
 
+  const closeModal = () => {
+    setErrorModal(false);
+  }
 
 
   return (
     <MainContainer className="rpgui-content rpgui-container framed">
-      <h1 className='my-4' style={{fontSize: '30px'}}>CRIE SEU PERSONAGEM LENDÁRIO</h1>
+      {errorModal && <ErrorModalBg onClick={closeModal}>
+        <ErrorModalContent className='rpgui-container framed-golden-2'>
+          <h1 style={{ fontSize: '20px' }}>Erro</h1>
+          <hr />
+          <p>{errors.name && errors.name.message}</p>
+        </ErrorModalContent>
+      </ErrorModalBg>}
+      <h1 className='my-4' style={{ fontSize: '30px' }}>CRIE SEU PERSONAGEM LENDÁRIO</h1>
       <hr className='golden' />
-      <p style={{fontSize: '16px'}} className='p-4'>Uma batalha está prestes a se iniciar em um local não divulgado (Senac), precisamos de toda a ajuda possível...
+      <p style={{ fontSize: '16px' }} className='p-4'>Uma batalha está prestes a se iniciar em um local não divulgado (Senac), precisamos de toda a ajuda possível...
         <br /><br />
         Crie seu personagem para lutar em uma competição que entrará para história.</p>
-        <hr style={{ gridColumn: 'span 2' }}/>
-      <RPGForm>
+      <hr style={{ gridColumn: 'span 2' }} />
+      <RPGForm id="rpg-form" onSubmit={handleSubmit(onSubmit, onError)}>
         <div>
           <div className='mt-2'>
             <label>Nome</label>
-            <input type="text" />
+            <input placeholder='Digite o nome de seu personagem' type="text" {...register("name", { required: "O nome é obrigatório", minLength: 3, maxLength: 30 })} />
+            {/* {errors.name && alert('erro')} */}
           </div>
           <div className='mt-4'>
             <label>Descrição</label>
-            <RPGTextArea>
+            <RPGTextArea {...register("description", { required: "a descrição é obrigatória" })}>
 
             </RPGTextArea>
           </div>
@@ -196,9 +248,9 @@ export const App = () => {
         <hr className='golden' style={{ gridColumn: 'span 2' }} />
       </RPGForm>
       <FooterContainer>
-        <button className='rpgui-button' type="submit"><p>Registrar</p></button>
+        <button form="rpg-form" className='rpgui-button' type="submit"><p>Registrar</p></button>
       </FooterContainer>
-    <Morcego></Morcego>
+      <Morcego></Morcego>
     </MainContainer>
 
   )
