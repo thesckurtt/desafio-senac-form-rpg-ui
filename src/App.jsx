@@ -390,11 +390,46 @@ export const App = () => {
         </FooterContainer>
         <Morcego></Morcego>
       </MainContainer>
-      <MainContainer className="rpgui-content rpgui-container framed" style={{ marginTop: '20px' }}>
+      {characters.length > 0 && <MainContainer className="rpgui-content rpgui-container framed" style={{ marginTop: '20px' }}>
         <h1>Personagens</h1>
+        {/* {characters.map((character) => (
+              <CharacterCard
+                key={character.id}
+                character={character}
+                onCharacterClick={handleCharacterClick}
+                onCharacterDelete={handleCharacterDelete}
+                onCharacterEdit={handleCharacterEdit}
+              />} )
+            )}   */}
+        {characters.length > 0 && characters.map((character) => {
+          return (
+            <div style={{ border: '1px solid #281e0663', padding: '10px' }}>
+              <p>
+                Nome: {character.name}
+              </p>
+              <p>Descrição: {character.description}</p>
+              <p>
+                Origem: {character.origin}
+              </p>
+              <p>
+                Tipo de mundo: {character.worldType}
+              </p>
+              <p>
+                Universo: {character.universe}
+              </p>
+              <p>Objetivo: {character.goal}</p>
+              {character.skill1 || character.skill2 || character.skill3 && <div><h1>Habilidades</h1>
+                {character.skill1 && <p>Soco do Desentupidor</p>}
+                {character.skill2 && <p>Abraço Fatal</p>}
+                {character.skill3 && <p>Rugido do Gato</p>}
+              </div>}
 
+            </div>
+          )
+        })}
 
-      </MainContainer>
+      </MainContainer> }
+      
     </>
   )
 }
